@@ -50,8 +50,9 @@
   .share-row .btn{ flex:1; max-width:none; }
   .hidden { display:none; }
   .result-badge { display:inline-block; padding:6px 10px; border-radius:999px; background:var(--pink); color:#fff; font-size:12px; margin-bottom:12px; }
-  .result-title { font-size:22px; margin:6px 0 10px; }
-  .result-desc { line-height:1.6; color:#333; white-space:pre-line; }
+  .result-img img { max-width:100%; border-radius:12px; }
+  .result-title { font-size:22px; margin:12px 0 8px; }
+  .result-desc { line-height:1.7; color:#333; white-space:pre-line; text-align:left; margin:0 auto; max-width:520px; }
   .footer { text-align:center; color:#888; font-size:12px; margin-top:18px; }
 </style>
 </head>
@@ -77,6 +78,7 @@
     <!-- Result -->
     <section id="result" class="card hidden">
       <span class="result-badge">결과</span>
+      <div class="result-img" id="rImage"></div>
       <div class="result-title" id="rTitle"></div>
       <div class="result-desc" id="rDesc"></div>
       <div class="share-row">
@@ -134,16 +136,81 @@ const quiz = [
   },
 ];
 
-// 이미지 경로 매핑
+// 결과 텍스트 + (선택) 이미지 경로
 const resultMap = {
-  "J-S-T": { img: "images/jst.png" },
-  "P-S-T": { img: "images/pst.png" },
-  "J-S-F": { img: "images/jsf.png" },
-  "P-S-F": { img: "images/psf.png" },
-  "J-N-T": { img: "images/jnt.png" },
-  "P-N-T": { img: "images/pnt.png" },
-  "J-N-F": { img: "images/jnf.png" },
-  "P-N-F": { img: "images/pnf.png" },
+  "J-S-T": {
+    title: "절약형 전략가 (J·S·T)",
+    desc: `계획 없이 지갑이 열리는 법이 없다.
+당신은 소비 세계의 ‘스나이퍼’. 가격 비교·쿠폰·포인트까지 꼼꼼히.
+장바구니를 ‘한 달 숙성’ 시킨 뒤 필요한 순간에만 결제!
+
+• 소비 습관: 쿠폰 만료일 기록, 세일 위주, 중고 시세 꿰뚫음
+• 조언: 월 예산의 10%는 ‘기쁨 예산’으로—작은 사치 허용`,
+    img: "images/jst.png"
+  },
+  "P-S-T": {
+    title: "실용형 모험가 (P·S·T)",
+    desc: `필요하면? 바로 산다. 대신 잘 써먹는다!
+여행 전날 캐리어, 캠핑 전날 버너도 과감히 결제.
+
+• 소비 습관: 생활·공구류에 강함, ‘언젠가 쓸 것’ 장바구니
+• 조언: 결제 전 “한 달 뒤에도 쓸까?” 10초만 생각`,
+    img: "images/pst.png"
+  },
+  "J-S-F": {
+    title: "감성형 절약가 (J·S·F)",
+    desc: `내 마음을 움직이는 건 지키고, 나머진 줄인다.
+예쁜 건 사랑하지만, 불필요한 반복 구매는 절대 NO.
+
+• 소비 습관: 문구·향기·컬러에 약함, 계획 내에서 즐김
+• 조언: 비슷한 물건이 늘어나면 ‘쿨링타임 48시간’`,
+    img: "images/jsf.png"
+  },
+  "P-S-F": {
+    title: "자유로운 실속파 (P·S·F)",
+    desc: `마음이 시키면 지금 바로! 써보고 별로면 중고로 정리.
+즉흥적이지만 실속은 챙기는 타입.
+
+• 소비 습관: SNS 신상·카페 신메뉴에 빠름
+• 조언: 결제 버튼 전에 30분만 숨고르기`,
+    img: "images/psf.png"
+  },
+  "J-N-T": {
+    title: "미래지향 플래너 (J·N·T)",
+    desc: `소비는 곧 투자. 내 삶을 업그레이드하는가가 기준.
+경험·배움·효율에 돈 쓰고 유행엔 흔들리지 않음.
+
+• 소비 습관: 노트북·책·강의는 과감히, 장기 계획 선호
+• 조언: 가끔은 ROI 계산 없이 ‘순수한 즐거움’도`,
+    img: "images/jnt.png"
+  },
+  "P-N-T": {
+    title: "직감형 지출가 (P·N·T)",
+    desc: `느낌이 좋으면 산다. 끝! 속도와 직감이 지배.
+가끔 남들보다 너무 앞서가는 바람에 ‘왜 샀지?’ 항목 발생.
+
+• 소비 습관: 출시 첫날 기기 구매, 신제품 러버
+• 조언: 월 1회 ‘뒤돌아보기’로 과열 영역만 냉각`,
+    img: "images/pnt.png"
+  },
+  "J-N-F": {
+    title: "로맨틱 플래너 (J·N·F)",
+    desc: `추억은 돈으로 살 수 있다—하지만 계획적으로!
+여행·공연·기념일에 아낌없이, 과정은 꼼꼼히.
+
+• 소비 습관: 이벤트 준비 철저, 기념 예산 따로
+• 조언: ‘기념일’이 너무 많아지면 일정·예산 다이어트`,
+    img: "images/jnf.png"
+  },
+  "P-N-F": {
+    title: "완전 YOLO형 (P·N·F)",
+    desc: `미래? 일단 오늘이 중요해! 설렘에 지갑이 열리는 타입.
+한정판·핫플·여행에 강한 흡입력.
+
+• 소비 습관: 맛집·비행기 즉시 예약, 굿즈는 무조건
+• 조언: YOLO도 안전망이 있어야 꿀맛—비상금 자동이체`,
+    img: "images/pnf.png"
+  },
 };
 
 let state = { idx: 0, score: {J:0, P:0, S:0, N:0, T:0, F:0} };
@@ -157,6 +224,7 @@ const el = {
   bar: document.getElementById('bar'),
   qText: document.getElementById('qText'),
   opts: document.getElementById('opts'),
+  rImage: document.getElementById('rImage'),
   rTitle: document.getElementById('rTitle'),
   rDesc: document.getElementById('rDesc'),
   retry: document.getElementById('retry'),
@@ -215,11 +283,15 @@ function pickType() {
 
 function showResult() {
   const key = pickType();
-  const data = resultMap[key];
+  const data = resultMap[key] || {};
   el.quiz.classList.add('hidden');
   el.result.classList.remove('hidden');
-  el.rTitle.innerHTML = `<img src="${data.img}" style="max-width:100%;">`;
-  el.rDesc.textContent = "";
+
+  // 이미지가 있으면 표시, 없으면 비움
+  el.rImage.innerHTML = data.img ? `<img src="${data.img}" alt="${data.title||''}">` : "";
+  // 텍스트 결과
+  el.rTitle.textContent = data.title || "결과";
+  el.rDesc.textContent = data.desc || "결과 설명을 준비 중입니다.";
 }
 
 el.start.addEventListener('click', startQuiz);
